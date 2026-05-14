@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clínica - Evaluación de Pacientes</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #34495e; font-weight: bold; font-size: 14px; }
+        input[type="number"] { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #2980b9; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; text-align: center; font-weight: bold; font-size: 18px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Evaluación Clínica Avanzada</h2>
+        <form action="/Prediction" method="POST">
+            <div class="form-group">
+                <label for="temperatura">Temperatura (°C):</label>
+                <input type="number" step="0.1" id="temperatura" name="temperatura" required value="{{ temp if temp else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="presion_arterial">Presión Arterial (Sistólica - mmHg):</label>
+                <input type="number" step="0.1" id="presion_arterial" name="presion_arterial" required value="{{ presion if presion else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="frecuencia_cardiaca">Frecuencia Cardíaca (bpm):</label>
+                <input type="number" step="1" id="frecuencia_cardiaca" name="frecuencia_cardiaca" required value="{{ fc if fc else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="frecuencia_respiratoria">Frecuencia Respiratoria (rpm):</label>
+                <input type="number" step="1" id="frecuencia_respiratoria" name="frecuencia_respiratoria" required value="{{ fr if fr else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="nivel_oxigeno">Nivel de Oxígeno (% SpO2):</label>
+                <input type="number" step="0.1" id="nivel_oxigeno" name="nivel_oxigeno" required value="{{ oxigeno if oxigeno else '' }}">
+            </div>
+            
+            <button type="submit">Evaluar Paciente</button>
+        </form>
+
+        {% if resultado %}
+            <div class="result success">Estado: {{ resultado }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
