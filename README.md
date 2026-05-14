@@ -2,6 +2,7 @@
 
 ## punto 1
 1. Diseño: Restricciones, Limitaciones y Datos
+
 Restricciones y Limitaciones:
 
 Desbalanceo de Clases Extremo: La principal limitación es la escasez de registros para enfermedades huérfanas frente a la abundancia de datos para enfermedades comunes. Entrenar un modelo único generaría un sesgo (bias) fuerte hacia la clase mayoritaria, produciendo falsos negativos críticos en diagnósticos de enfermedades raras.
@@ -15,43 +16,45 @@ Tipos de Datos:
 Se trabajará principalmente con datos tabulares extraídos de Historias Clínicas Electrónicas (EHR). Esto incluye variables continuas (temperatura, presión arterial), variables categóricas (síntomas presentados) y resultados numéricos de exámenes de laboratorio (ej. cuadros hemáticos, perfiles bioquímicos).
 
 2. Desarrollo: Fuentes, Manejo de Datos y Modelado
+
 Fuentes y Manejo de Datos (Pipeline ETL):
 
-Fuentes: Integración de múltiples orígenes, como bases de datos gubernamentales de salud pública, registros internos de clínicas asociadas y, de ser necesario, datasets médicos anonimizados de consorcios de investigación.
+Fuentes: Integración de múltiples orígenes, como bases de datos gubernamentales de salud pública, registros internos de clínicas asociadas y datasets médicos anonimizados de consorcios de investigación.
 
-Procesamiento: Es fundamental un pipeline robusto que realice la ingesta, limpieza e igualación de columnas. Esto implica normalizar la nomenclatura clínica, estandarizar las unidades de las variables y manejar los valores nulos para consolidar un Feature Store centralizado.
+Procesamiento: Es fundamental un pipeline robusto que realice la ingesta, limpieza e igualación de columnas. Esto implica normalizar la nomenclatura clínica, estandarizar las unidades y manejar valores nulos. Se sugiere el uso de herramientas como Great Expectations para validar la calidad de los datos médicos antes de consolidarlos en un Feature Store centralizado.
 
-Estrategia de Modelado (Arquitectura Ensamble/Enrutador):
-Dado el desafío del desbalanceo, se propone un enfoque de dos niveles:
+Estrategia de Modelado (Arquitectura de Ensamble por Stacking):
+Dado el desafío del desbalanceo, se propone un enfoque de ejecución paralela con fusión tardía (Late Fusion o Stacking):
 
-Modelo de Detección de Anomalías / Enfermedades Huérfanas: Un modelo especializado en detectar patrones atípicos o entrenado con técnicas de Few-Shot Learning para las clases minoritarias.
+Modelo de Enfermedades Comunes: Un modelo de clasificación tradicional (ej. XGBoost) robusto y optimizado para la clase mayoritaria.
 
-Modelo de Clasificación Tradicional: Un modelo robusto para las enfermedades comunes.
+Modelo de Enfermedades Huérfanas: Un modelo especializado en detectar patrones atípicos o entrenado con técnicas de Few-Shot Learning para las clases minoritarias.
 
-Modelo Juez (Orquestador): Un modelo principal que evalúa las características de entrada y determina en cuál de los dos modelos especializados confiar más para la predicción final. Este desarrollo puede implementarse utilizando frameworks como PyTorch para una mayor flexibilidad en la arquitectura.
+Modelo Juez (Meta-Learner): Ambos modelos base ejecutan sus predicciones en paralelo. Estos resultados alimentan a un modelo "juez" final (desarrollado en frameworks como PyTorch) que evalúa las salidas de ambos modelos para tomar la decisión definitiva. Este juez aprende a ponderar en qué modelo confiar según el contexto de la predicción.
 
 Validación y Pruebas:
 
 Se realizará una división de datos utilizando muestreo estratificado (stratified split) para garantizar que las enfermedades huérfanas estén representadas tanto en train como en test.
 
-Tras la validación offline con métricas como F1-Score (priorizando el Recall), se implementará un despliegue en modo Shadow en entornos clínicos reales. El modelo hará predicciones silenciosas para comparar su rendimiento con el criterio de los médicos antes de tomar decisiones activas.
+Tras la validación offline con métricas como F1-Score (priorizando el Recall), el modelo empaquetado se almacenará en un Model Registry (ej. MLflow). Posteriormente, se implementará un despliegue en modo Shadow en entornos clínicos reales: el modelo hará predicciones silenciosas para comparar su rendimiento con el criterio de los médicos antes de tomar decisiones activas.
 
 3. Producción: Despliegue, Monitoreo y Retraining
+
 Despliegue de la Solución:
 
-La solución debe ser empaquetada en contenedores (ej. Docker) para garantizar la consistencia entre los entornos de desarrollo y producción.
+La solución debe ser empaquetada en contenedores (Docker) para garantizar la consistencia.
 
-Se expondrá mediante una API segura. La arquitectura debe contemplar Control de Acceso Basado en Roles (RBAC), ya que la interfaz y los permisos para consultar datos sensibles variarán drásticamente si el usuario final es un paciente desde su casa o un profesional de la salud en un entorno clínico.
+Se expondrá mediante una API rápida y segura (ej. FastAPI). La arquitectura debe contemplar Control de Acceso Basado en Roles (RBAC), ya que la interfaz y los permisos variarán si el usuario es un paciente desde su casa o un profesional de la salud con acceso a datos sensibles.
 
 Monitoreo (Observabilidad):
 
-Métricas Operacionales: Uso de dashboards interactivos en herramientas como Grafana para monitorear la latencia, el uptime, el uso de CPU/RAM y la tasa de requests de la API.
+Métricas Operacionales: Uso de dashboards interactivos (Prometheus + Grafana) para monitorear la latencia, el uptime y la tasa de requests de la API.
 
-Métricas de ML: Monitoreo continuo del Data Drift y Concept Drift. Se compararán estadísticamente las distribuciones de los datos de entrada en tiempo real frente a los datos de entrenamiento para detectar desviaciones.
+Métricas de ML: Monitoreo continuo del Data Drift y Concept Drift utilizando librerías especializadas en datos tabulares (ej. Evidently AI o NannyML). Se compararán las distribuciones de los datos de entrada en tiempo real frente a los datos de entrenamiento.
 
 Re-entrenamiento Continuo (CT):
 
-El pipeline incluirá un flujo orquestado (por ejemplo, mediante DAGs en Airflow) que dispare un re-entrenamiento automático cuando se detecte un drift significativo o cuando se acumule un volumen predefinido de nuevos casos de enfermedades huérfanas, asegurando
+El pipeline incluirá un flujo orquestado mediante DAGs en Airflow. Este orquestador disparará una alerta y ejecutará un nuevo ciclo de entrenamiento (leyendo los datos actualizados del Feature Store) cuando se detecte un drift significativo en el monitoreo o cuando se acumule un volumen predefinido de nuevos casos de enfermedades huérfanas.
 
 ### Diagrama del Pipeline
 
