@@ -33,7 +33,7 @@ jobs:
             - name: 5. Ejecutar Pruebas
               run: |
                 uv sync
-                uv run pytest tests/
+                PYTHONPATH=. uv run pytest tests/
 
             - name: 6. Comentar éxito en el PR.
               if: success()
