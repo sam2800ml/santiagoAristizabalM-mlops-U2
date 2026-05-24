@@ -3,8 +3,8 @@ name: Evento 2 - Merge a Main
 on:
   workflow_run:
     workflows: ["Evento 1 - PR"]
-    types:
-      - completed
+    types: [completed]
+    branches: [main] 
 
 permissions:
   contents: read
