@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-     - name: 0. Comentar el inicio en el PR
-       uses: thollander/actions-comment-pull-request@v3
-       with:
+      - name: 0. Comentar el inicio en el PR
+        uses: thollander/actions-comment-pull-request@v3
+        with:
             message: "Iniciando despliegue en producción …"
       - name: 1. Traer el código
         uses: actions/checkout@v4
