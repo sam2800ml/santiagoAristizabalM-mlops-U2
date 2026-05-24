@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: ["Evento 1 - PR"]
     types: [completed]
-    branches: [main] 
+    branches: [main]
 
 permissions:
   contents: read
@@ -12,14 +12,9 @@ permissions:
 
 jobs:
   pruebas-y-despliegue:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-
     steps:
-      - name: 0. Comentar el inicio en el PR
-        uses: thollander/actions-comment-pull-request@v3
-        with:
-            message: "Iniciando despliegue en producción …"
-            
       - name: 1. Traer el código
         uses: actions/checkout@v4
 
@@ -31,14 +26,14 @@ jobs:
       - name: 3. Instalar dependencias usando uv
         uses: astral-sh/setup-uv@v4
         with:
-            enable-cache: true
-            
+          enable-cache: true
+
       - name: 4. Ejecutar Pruebas
         run: |
-            uv sync
-            PYTHONPATH=. uv run pytest tests/
+          uv sync
+          PYTHONPATH=. uv run pytest tests/
 
-      - name: 5. Convertir nombre del epo a minúsculas para Docker
+      - name: 5. Convertir nombre del repo a minúsculas para Docker
         run: echo "REPO_MINUSCULAS=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: 6. Iniciar sesión en GitHub Packages (GHCR)
@@ -54,8 +49,8 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO_MINUSCULAS }}/evaluacion-medica:latest
-            
-      - name: 8. Comentar el Final en el PR
-        uses: thollander/actions-comment-pull-request@v3
-        with:
-            message: "Despliegue en producción completado …"
+
+      - name: 8. Resumen del despliegue
+        run: |
+          echo "## 🚀 Despliegue completado" >> $GITHUB_STEP_SUMMARY
+          echo "Imagen publicada: \`ghcr.io/${{ env.REPO_MINUSCULAS }}/evaluacion-medica:latest\`" >> $GITHUB_STEP_SUMMARY
