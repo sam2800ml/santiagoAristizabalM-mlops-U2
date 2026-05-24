@@ -32,3 +32,13 @@ def evaluar_paciente(temperatura: float, presion_arterial: float,
         return "ENFERMEDAD GRAVE"
     else:
         return "ENFERMEDAD TERMINAL"
+
+
+def validar_rango_medico(temp, pres, fc, fr, oxigeno):
+    """Retorna un mensaje de error si los valores son físicamente improbables"""
+    if not (30 <= temp <= 45): return "Revisar valores: Temperatura fuera de rango lógico (30-45°C)"
+    if not (50 <= pres <= 250): return "Revisar valores: Presión arterial fuera de rango (50-250 mmHg)"
+    if not (20 <= fc <= 250): return "Revisar valores: Frecuencia cardíaca fuera de rango (20-250 bpm)"
+    if not (5 <= fr <= 60): return "Revisar valores: Frecuencia respiratoria fuera de rango (5-60 rpm)"
+    if not (40 <= oxigeno <= 100): return "Revisar valores: Nivel de oxígeno fuera de rango (40-100%)"
+    return None  # Todo es válido
