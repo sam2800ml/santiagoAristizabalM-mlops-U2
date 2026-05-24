@@ -35,7 +35,7 @@ jobs:
                 uv sync
                 uv run pytest tests/
 
-            - name: 6. Comentar éxito en el PR
+            - name: 6. Comentar éxito en el PR.
               if: success()
               uses: thollander/actions-comment-pull-request@v3
               with:
