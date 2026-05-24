@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+     - name: 0. Comentar el inicio en el PR
+       uses: thollander/actions-comment-pull-request@v3
+       with:
+            message: "Iniciando despliegue en producción …"
       - name: 1. Traer el código
         uses: actions/checkout@v4
 
@@ -49,3 +53,8 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO_MINUSCULAS }}/evaluacion-medica:latest
+            
+      - name: 8. Comentar el Final en el PR
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+            message: "Despliegue en producción completado …"

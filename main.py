@@ -4,16 +4,13 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import uvicorn 
 
-# Importaciones de tus módulos separados
 from database.database import init_db, insert_patient_data, get_all_patient_data
 from backend.logic import evaluar_paciente, validar_rango_medico
 
 app = FastAPI(title="MLops Taller 1 Evaluacion Medica")
 
-# Ruta directa a templates ya que main.py está en la raíz
 templates = Jinja2Templates(directory="templates")
 
-# Inicializar DB al arrancar la app
 init_db()
 
 class PatientData(BaseModel):
@@ -37,7 +34,6 @@ async def predict(
 ):
     error_validacion = validar_rango_medico(temperatura, presion_arterial, frecuencia_cardiaca, frecuencia_respiratoria, nivel_oxigeno)
     
-    # Si hay error, devolvemos el HTML con el aviso y NO guardamos en base de datos
     if error_validacion:
         return templates.TemplateResponse(request=request, name="index.html", context={
             "error": error_validacion,
@@ -68,14 +64,12 @@ async def predecir_api(datos: PatientData):
         datos.nivel_oxigeno
     )
     
-    # Persistir en DB desde consumo vía API
     get_all_patient_data(datos.temperatura, datos.presion_arterial, 
                        datos.frecuencia_cardiaca, datos.frecuencia_respiratoria, 
                        datos.nivel_oxigeno, resultado)
                        
     return {"resultado": resultado}
 
-# Endpoint requerido para las métricas de los médicos
 @app.get("/stats", response_class=HTMLResponse)
 async def ver_estadisticas_html(request: Request):
     datos_estadisticas = get_all_patient_data()
@@ -84,5 +78,4 @@ async def ver_estadisticas_html(request: Request):
     })
 
 if __name__ == '__main__':
-    # Al estar en la raíz, lo ejecutas de forma normal
     uvicorn.run("main:app", host='0.0.0.0', port=8000, reload=True)
