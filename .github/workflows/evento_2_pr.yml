@@ -33,7 +33,7 @@ jobs:
             uv sync
             PYTHONPATH=. uv run pytest tests/
 
-      - name: 5. Convertir nombre del repo a minúsculas para Docker
+      - name: 5. Convertir nombre del epo a minúsculas para Docker
         run: echo "REPO_MINUSCULAS=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: 6. Iniciar sesión en GitHub Packages (GHCR)
