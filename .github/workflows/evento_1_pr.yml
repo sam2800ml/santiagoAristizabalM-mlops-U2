@@ -12,7 +12,31 @@ jobs:
     pruebas-y-comentarios:
         runs-on: ubuntu-latest
         steps:
-            - name: 1. Comentar el inicio en el pr
+            - name: 1. Comentar el inicio en el PR
               uses: thollander/actions-comment-pull-request@v3
               with:
-                message: "Iniciando pruebas automáticas para este PR..."
+                message: "CI/CD en acción. Ejecutando tareas …"
+
+            - name: 2. Traer el código
+              uses: actions/checkout@v4
+
+            - name: 3. Configurar Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.10'
+
+            - name: 4. Instalar dependencias usando uv
+              uses: astral-sh/setup-uv@v4
+              with:
+                enable-cache: true
+            
+            - name: 5. Ejecutar Pruebas
+              run: |
+                uv sync
+                PYTHONPATH=. uv run pytest tests/
+
+            - name: 6. Comentar éxito en el PR.
+              if: success()
+              uses: thollander/actions-comment-pull-request@v3
+              with:
+                message: "CI/CD terminado con éxito."
