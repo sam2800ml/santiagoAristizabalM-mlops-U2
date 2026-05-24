@@ -128,3 +128,24 @@ Respuesta esperada:
 - FastAPI + Uvicorn
 - Jinja2 (templates HTML)
 - Docker
+
+
+## Punto 2: Mejoras y nuevas funcionalidades
+
+1. **Nuevo requerimiento funcional:**
+  - Se añadió la funcionalidad para calcular y mostrar estadísticas de los pacientes evaluados, accesible desde la interfaz web.
+
+2. **Integración de base de datos:**
+  - Se integró una base de datos SQLite para almacenar los registros de las evaluaciones médicas.
+  - El backend permite guardar y consultar los resultados históricos de los pacientes, facilitando el análisis y la trazabilidad.
+
+3. **Página de estadísticas:**
+  - Se creó una nueva vista (`/stats`) que muestra estadísticas agregadas de las evaluaciones realizadas, como el conteo por nivel de riesgo.
+
+4. **Automatización con GitHub Actions:**
+  - Se añadieron dos flujos de trabajo para CI/CD:
+    - **Evento 1 - PR:** Ejecuta pruebas automáticas en cada Pull Request y en cada push a `main`.
+    - **Evento 2 - Merge a Main:** Tras completar el workflow anterior en `main`, ejecuta pruebas y despliega la imagen Docker en GitHub Packages.
+
+Puedes ver la imagen generada automáticamente en:
+https://github.com/sam2800ml/santiagoAristizabalM-mlops-U2/pkgs/container/santiagoaristizabalm-mlops-u2%2Fevaluacion-medica
