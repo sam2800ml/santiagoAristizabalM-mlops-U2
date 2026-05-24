@@ -6,7 +6,7 @@ import uvicorn
 
 # Importaciones de tus módulos separados
 from database.database import init_db, insert_patient_data, get_all_patient_data
-from backend.logic import evaluar_paciente
+from backend.logic import evaluar_paciente, validar_rango_medico
 
 app = FastAPI(title="MLops Taller 1 Evaluacion Medica")
 
@@ -35,6 +35,15 @@ async def predict(
     frecuencia_respiratoria: int = Form(...),
     nivel_oxigeno: float = Form(...)
 ):
+    error_validacion = validar_rango_medico(temperatura, presion_arterial, frecuencia_cardiaca, frecuencia_respiratoria, nivel_oxigeno)
+    
+    # Si hay error, devolvemos el HTML con el aviso y NO guardamos en base de datos
+    if error_validacion:
+        return templates.TemplateResponse(request=request, name="index.html", context={
+            "error": error_validacion,
+            "temp": temperatura, "presion": presion_arterial, "fc": frecuencia_cardiaca, "fr": frecuencia_respiratoria, "oxigeno": nivel_oxigeno
+        })
+    
     resultado = evaluar_paciente(temperatura, presion_arterial,
                 frecuencia_cardiaca, frecuencia_respiratoria, nivel_oxigeno)
 
@@ -67,9 +76,12 @@ async def predecir_api(datos: PatientData):
     return {"resultado": resultado}
 
 # Endpoint requerido para las métricas de los médicos
-@app.get("/api/stats")
-async def obtener_stats():
-    return get_all_patient_data()
+@app.get("/stats", response_class=HTMLResponse)
+async def ver_estadisticas_html(request: Request):
+    datos_estadisticas = get_all_patient_data()
+    return templates.TemplateResponse(request=request, name="stats.html", context={
+        "stats": datos_estadisticas
+    })
 
 if __name__ == '__main__':
     # Al estar en la raíz, lo ejecutas de forma normal

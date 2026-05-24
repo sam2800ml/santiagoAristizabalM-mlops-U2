@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clínica - Estadísticas</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #2c3e50; text-align: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; }
+        h3 { color: #34495e; font-size: 16px; margin-top: 20px;}
+        ul { list-style-type: none; padding: 0; }
+        li { background: #ecf0f1; margin: 5px 0; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between;}
+        .btn-back { background-color: #3498db; margin-top: 20px; display: block; text-align: center; text-decoration: none; padding: 12px; color: white; border-radius: 4px; font-weight: bold;}
+        .btn-back:hover { background-color: #2980b9; }
+        .highlight { font-weight: bold; color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Reporte de Predicciones</h2>
+
+        <h3>Total por Categoría:</h3>
+        <ul>
+            {% for categoria, cantidad in stats.total_por_categoria.items() %}
+                <li><span>{{ categoria }}</span> <span class="highlight">{{ cantidad }}</span></li>
+            {% endfor %}
+        </ul>
+
+        <h3>Últimas 5 Predicciones:</h3>
+        <ul>
+            {% for pred in stats.ultimas_5_predicciones %}
+                <li>{{ loop.index }}. {{ pred }}</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Última actividad:</h3>
+        <p>🕒 {% if stats.fecha_ultima_prediccion %} {{ stats.fecha_ultima_prediccion[:16].replace('T', ' ') }} {% else %} Sin datos {% endif %}</p>
+
+        <a href="/" class="btn-back">⬅ Volver a Evaluación</a>
+    </div>
+</body>
+</html>
