@@ -56,19 +56,6 @@ async def predict(
         "oxigeno": nivel_oxigeno
     })
 
-@app.post("/api/predict")
-async def predecir_api(datos: PatientData):
-    resultado = evaluar_paciente(
-        datos.temperatura, datos.presion_arterial,
-        datos.frecuencia_cardiaca, datos.frecuencia_respiratoria,
-        datos.nivel_oxigeno
-    )
-    
-    get_all_patient_data(datos.temperatura, datos.presion_arterial, 
-                       datos.frecuencia_cardiaca, datos.frecuencia_respiratoria, 
-                       datos.nivel_oxigeno, resultado)
-                       
-    return {"resultado": resultado}
 
 @app.get("/stats", response_class=HTMLResponse)
 async def ver_estadisticas_html(request: Request):
